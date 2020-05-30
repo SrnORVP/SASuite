@@ -1,4 +1,4 @@
-import os
+import os, openpyxl as opxl, pandas as pd, numpy as np
 
 
 def strSpecificFileName(strMyFile, strExtension, strPath='./', isRequired=True):
@@ -43,3 +43,40 @@ def extract_Substring(strMainString, strAction, strSubstring1, strSubstring2=Non
         idxStart = idxSubStr1 + lenSubstring
         idxEnd = idxSubStr2
     return strMainString[idxStart:idxEnd]
+
+
+def write_pdDF_to_opxlWS(xlwsObj, dfObj, numRowOffSet=0, numColOffSet=0, isIndexWrite=False, replaceNaN=''):
+    lenDFRow, lenDFCol = dfObj.shape
+    if isIndexWrite:
+        lenDFCol += 1   # accommodating index column
+    dfObj = dfObj.fillna(replaceNaN)
+    lenWSRow = lenDFRow + numRowOffSet
+    lenWSCol = lenDFCol + numColOffSet
+    xlwsObj.cell(row=lenWSRow, column=lenWSCol).value = None   # allocate memory
+    iterWSrows = xlwsObj.iter_rows()
+    iterDFrows = dfObj.itertuples(name=None, index=isIndexWrite)
+    for _ in range(numRowOffSet):
+        _ = next(iterWSrows)
+    for seqRow in range(lenDFRow):
+        rowWS = next(iterWSrows)
+        rowDF = next(iterDFrows)
+        for seqCol in range(lenDFCol):
+            rowWS[seqCol + numColOffSet].value = rowDF[seqCol]
+
+
+if __name__ == '__main__':
+    arrPath = ['..','01-Test']
+    strTestWB = 'emptyWB.xlsx'
+    wbTest= opxl.load_workbook(filename=os.path.join(*arrPath, strTestWB))
+    wsS1 = wbTest.worksheets[0]
+
+    dfTest = pd.DataFrame([[1,2,3],[4,5,np.nan]],index=['a','b'],columns=[11,22,33])
+    write_pdDF_to_opxlWS(wsS1,dfTest,numRowOffSet=1,numColOffSet=1, isIndexWrite=False)
+    wbTest.save(os.path.join(*arrPath, strTestWB))
+
+
+
+
+
+
+
