@@ -1,5 +1,5 @@
 
-import docx, os, pandas as pd, numpy as np, pickle as pk, openpyxl as opxl, main_pandas
+import docx, os, pandas as pd, numpy as np, pickle as pk, openpyxl as opxl, main_pandas, SACusFun as SACF
 from datetime import datetime as dt
 
 arrPath = main_pandas.arrPath
@@ -10,7 +10,7 @@ strSALtab = main_pandas.strSALtab
 strParaFile = main_pandas.strParaFile
 strSAMtp = main_pandas.strSAMtp
 strTagLookup = main_pandas.strTagLookup
-arrSALheader = main_pandas.arrSALheader
+intSALheader = main_pandas.intSALheader
 strSAMOutput = main_pandas.strSAMoutput
 
 
@@ -25,13 +25,14 @@ xlwsSAM = xlwbSAM['MailMerge']
 
 
 # Clean up - SAM
-dfSAM_header = dfSAMtemp.drop(columns=['Unnamed: 0',strTagLookup,'SIL_SIF','meet_SIF','rec1_SIF','rec2_SIF','rec3_SIF']).columns.values
-
+arrHeader_SAM = dfSAMtemp.drop(columns=[strTagLookup, 'SIL_SIF', 'meet_SIF', 'rec1_SIF', 'rec2_SIF', 'rec3_SIF']).columns.to_list()
+for intSeq in range(len(arrHeader_SAM)-1,-1,-1):
+    if 'Unnamed' in arrHeader_SAM[intSeq]:
+        del arrHeader_SAM[intSeq]
 
 # Clean up - SAL
-dfSAL = dfSAL.drop(arrSALheader, axis=0)
+dfSAL = dfSAL.drop(intSALheader, axis=0)
 dfSAL = dfSAL.set_index(strTagLookup)
-
 
 # Clean up - SAD
 dfSAD = dfSAD.set_index(strTagLookup)
@@ -39,32 +40,12 @@ dfSAD = dfSAD.set_index(strTagLookup)
 
 # Merge SAD and SAL
 dfSAM = pd.concat([dfSAD,dfSAL],axis=1,ignore_index=False,sort=False)
-
-dfSAM = dfSAM.reindex(dfSAM_header, axis=1)
+dfSAM = dfSAM.reindex(arrHeader_SAM, axis=1)
 dfSAM.index.name = strTagLookup
 
 
-# Write DataFrame to SAMerge Template
-def write_DF_to_Excelws(xlwsObj, dfObj, numRowOffSet=0, numColOffSet=0):
-    lenDFRow, lenDFCol = dfObj.shape
-    lenDFCol += 1   # counting index column
-    lenWSRow = lenDFRow + numRowOffSet
-    lenWSCol = lenDFCol + numColOffSet
-    xlwsObj.cell(row=lenWSRow, column=lenWSCol).value = None   # allocate memory
-    iterWSrows = xlwsObj.iter_rows()
-    iterDFrows = dfObj.itertuples(name=None)
-    for _ in range(numRowOffSet):
-        _ = next(iterWSrows)
-    for seqRow in range(lenDFRow):
-        rowWS = next(iterWSrows)
-        rowDF = next(iterDFrows)
-        for seqCol in range(lenDFCol):
-            rowWS[seqCol + numColOffSet].value = rowDF[seqCol]
-
-write_DF_to_Excelws(xlwsSAM, dfSAM, numRowOffSet=3, numColOffSet=1)
-
-
-# Export SAM
+# Write and Export SAM
+SACF.write_pdDF_to_opxlWS(xlwsSAM, dfSAM, numRowOffSet=3, numColOffSet=1,isIndexWrite=True)
 strTimeNow = dt.now().strftime("%d%b%y")
 xlwbSAM.save(f'{os.path.join(*arrPath, "")}{strSAMOutput}-{strTimeNow}.xlsm')
 

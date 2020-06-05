@@ -6,7 +6,7 @@ arrPath = main_pandas.arrPath
 strSALinput = main_pandas.strSALinput
 strSALOutput = main_pandas.strSALoutput
 strSUFFIX = main_pandas.strSUFFIX
-arrSALheader = main_pandas.arrSALheader
+intSALheader = main_pandas.intSALheader
 
 
 # load Excel
@@ -14,7 +14,9 @@ strFilePath = os.path.join(*arrPath, strSALinput)
 dfSIF = pd.read_excel(strFilePath, sheet_name='SIF')
 dfINT = pd.read_excel(strFilePath, sheet_name='INT')
 dfPFE = pd.read_excel(strFilePath, sheet_name='PFE')
-dfSIF = dfSIF.drop(arrSALheader, axis=0)
+if isinstance(intSALheader, int):
+    dfSIF = dfSIF.iloc[range(intSALheader+1,dfSIF.shape[0]),:]
+
 
 arrSIFcols = ['name_SIF','ref_SIF','desc_SIF','tarRRF_SIF', 'tarSIL_SIF']
 arrINTcols = ['C1_INT', 'C2_INT', 'C3_INT', 'C4_INT', 'C5_INT'] + ['vot_INT']
@@ -23,7 +25,7 @@ arrInstcols = arrINTcols[:-1]+arrPFEcols[:-1]
 
 dfSIF_Rep = dfSIF.reindex(columns=arrSIFcols)
 dfSIF_Rep['tarSIL_SIF'] = dfSIF_Rep['tarSIL_SIF'].str[-1]
-dfSIF_Rep['Index'] = dfSIF_Rep.index+1
+dfSIF_Rep['Index'] = dfSIF_Rep.index - intSALheader if isinstance(intSALheader, int) else dfSIF_Rep.index + 1
 dfSubsys = dfSIF.reindex(columns=arrSIFcols +  arrINTcols + arrPFEcols)
 
 

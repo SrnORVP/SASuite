@@ -1,4 +1,4 @@
-import os, openpyxl as opxl, pandas as pd, numpy as np
+import os, openpyxl as opxl, pandas as pd, numpy as np, docx
 
 
 def strSpecificFileName(strMyFile, strExtension, strPath='./', isRequired=True):
@@ -65,6 +65,11 @@ def write_pdDF_to_opxlWS(xlwsObj, dfObj, numRowOffSet=0, numColOffSet=0, isIndex
 
 
 if __name__ == '__main__':
+    print(os.listdir('../02-200601-Project'))
+    arrPath = ['..','02-200601-Project']
+    strTest = 'EPS-SIL Verification 6-5-2020 SILver Detailed Report.docx'
+    docxSIF = docx.Document(os.path.join(*arrPath, strTest))
+
     arrPath = ['..','01-Test']
     strTestWB = 'emptyWB.xlsx'
     wbTest= opxl.load_workbook(filename=os.path.join(*arrPath, strTestWB))
@@ -73,10 +78,4 @@ if __name__ == '__main__':
     dfTest = pd.DataFrame([[1,2,3],[4,5,np.nan]],index=['a','b'],columns=[11,22,33])
     write_pdDF_to_opxlWS(wsS1,dfTest,numRowOffSet=1,numColOffSet=1, isIndexWrite=False)
     wbTest.save(os.path.join(*arrPath, strTestWB))
-
-
-
-
-
-
 
