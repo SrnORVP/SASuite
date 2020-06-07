@@ -9,7 +9,7 @@ from datetime import datetime as dt
 
 arrPath = main_pandas.arrPath
 strSACInput = main_pandas.strSACinput
-strParaFile = main_pandas.strParaFile
+strSASparam = main_pandas.strSASparam
 strSACOutput = main_pandas.strSACoutput
 
 
@@ -76,7 +76,7 @@ def extract_String_on_Conditions(strInput,arrCond):
 
 # Load Inputs
 docxSIF = docx.Document(os.path.join(*arrPath, strSACInput))
-strSASIP = os.path.join('.', strParaFile)
+strSASIP = os.path.join('.', strSASparam)
 arrC4SAC_str = pd.read_excel(strSASIP,'C4SAC-str').values
 arrC4SAC_tbl = pd.read_excel(strSASIP,'C4SAC-tbl').values
 arrC4SAC_hdr = pd.read_excel(strSASIP,'C4SAC-hdr').values

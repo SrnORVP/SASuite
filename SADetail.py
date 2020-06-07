@@ -10,7 +10,7 @@ from docx.text.paragraph import Paragraph
 arrPath = main_pandas.arrPath
 strSADinput = main_pandas.strSADinput
 arrPath = main_pandas.arrPath
-strParaFile = main_pandas.strParaFile
+strSASparam = main_pandas.strSASparam
 strSADoutput = main_pandas.strSADoutput
 isDebug = main_pandas.isDebug
 
@@ -209,19 +209,15 @@ def concat_DF_Rows(srsInput, strConcat):
 
 # Load Inputs
 docxSIF = docx.Document(os.path.join(*arrPath, strSADinput))
-arrC4SAD_lvl = pd.read_excel(os.path.join('.', strParaFile), 'C4SAD-lvl').values
-arrC4SAD_col = pd.read_excel(os.path.join('.', strParaFile), 'C4SAD-col').values
-arrC4SAD_grp = pd.read_excel(os.path.join('.', strParaFile), 'C4SAD-grp').values
-arrC4SAD_sub = pd.read_excel(os.path.join('.', strParaFile), 'C4SAD-sub').values
+arrC4SAD_lvl = pd.read_excel(os.path.join('.', strSASparam), 'C4SAD-lvl').values
+arrC4SAD_col = pd.read_excel(os.path.join('.', strSASparam), 'C4SAD-col').values
+arrC4SAD_grp = pd.read_excel(os.path.join('.', strSASparam), 'C4SAD-grp').values
+arrC4SAD_sub = pd.read_excel(os.path.join('.', strSASparam), 'C4SAD-sub').values
 
 arrBlkSeq, arrBlkStyle, arrObjBlk = extract_Block_From_Docs(docxSIF)
-
 arrBlkSeq, arrBlkStyle, arrObjBlk = remove_Array_HeadTail(arrBlkSeq, arrBlkStyle, arrObjBlk)
-
 dfSAD = pd.DataFrame({'style': arrBlkStyle, 'blk':arrObjBlk }, index = arrBlkSeq)
-
 dfSAD = dfSAD.drop(index = dfSAD[dfSAD['style']=='Caption'].index)
-
 dfSAD = assign_Identifier_By_Docx_Style(dfSAD, arrC4SAD_lvl, 'style', 'blk')
 
 
